@@ -22,7 +22,7 @@ An AI-powered web application that takes an MP3 song, separates it into vocal an
 ## Demo
 
 ![Demo Screenshot](path/to/screenshot.png)  
-*(Replace with your own screenshot if desired.)*
+*frontend still in progress*
 
 ## Prerequisites
 
