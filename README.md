@@ -38,17 +38,6 @@ For full audio processing functionality, you'll need FFmpeg:
    - Click Environment Variables
    - Edit the PATH variable to include the path to FFmpeg's bin folder
 
-### Mac
-```
-brew install ffmpeg
-```
-
-### Linux
-```
-sudo apt update
-sudo apt install ffmpeg
-```
-
 ## Manual Setup
 
 If you prefer to run the application manually:
