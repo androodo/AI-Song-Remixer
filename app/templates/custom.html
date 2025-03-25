@@ -1,0 +1,559 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+<style>
+    .slider-container {
+        margin: 2rem 0;
+    }
+    .slider {
+        height: 10px;
+        margin: 1.5rem 0;
+    }
+    .param-value {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    .preview-controls {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .preset-btn {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5 animate__animated animate__fadeIn">
+                <h1 class="display-4 fw-bold">Custom Audio Effect</h1>
+                <p class="lead text-muted">Create your own unique sound by adjusting these parameters</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 mb-4 animate__animated animate__fadeInLeft animate__delay-1s">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i> Upload Audio</h4>
+                        </div>
+                        <div class="card-body">
+                            <label for="custom-file" class="file-upload-container mb-4" id="drop-area">
+                                <i class="fas fa-music"></i>
+                                <h5 class="drag-drop-text">Drop your audio file here</h5>
+                                <p class="text-muted">or click to browse</p>
+                                <input type="file" class="form-control" id="custom-file" accept=".mp3,.wav,.ogg,.m4a">
+                                <div id="file-name" class="mt-2 text-primary fw-bold"></div>
+                            </label>
+
+                            <h5 class="mt-4 mb-3">Preset Effects</h5>
+                            <div class="d-flex flex-wrap">
+                                <button class="btn btn-sm btn-outline-primary preset-btn" data-preset="lofi">Lo-Fi</button>
+                                <button class="btn btn-sm btn-outline-primary preset-btn" data-preset="jazz">Jazz</button>
+                                <button class="btn btn-sm btn-outline-primary preset-btn" data-preset="dubstep">Dubstep</button>
+                                <button class="btn btn-sm btn-outline-primary preset-btn" data-preset="vaporwave">Vaporwave</button>
+                                <button class="btn btn-sm btn-outline-primary preset-btn" data-preset="rock">Rock</button>
+                                <button class="btn btn-sm btn-outline-secondary preset-btn" data-preset="reset">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 mb-4 animate__animated animate__fadeInRight animate__delay-1s">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0"><i class="fas fa-sliders-h me-2"></i> Adjust Parameters</h4>
+                            <div class="preview-controls">
+                                <button class="btn btn-sm btn-outline-primary me-2" id="preview-btn" disabled>
+                                    <i class="fas fa-play me-1"></i> Preview
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="bass-slider">Bass <span id="bass-value" class="param-value">0</span> dB</label>
+                                        <div id="bass-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="treble-slider">Treble <span id="treble-value" class="param-value">0</span> dB</label>
+                                        <div id="treble-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="reverb-slider">Reverb <span id="reverb-value" class="param-value">0</span>%</label>
+                                        <div id="reverb-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="tempo-slider">Tempo <span id="tempo-value" class="param-value">100</span>%</label>
+                                        <div id="tempo-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="pitch-slider">Pitch <span id="pitch-value" class="param-value">0</span> semitones</label>
+                                        <div id="pitch-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="slider-container">
+                                        <label for="volume-slider">Volume <span id="volume-value" class="param-value">100</span>%</label>
+                                        <div id="volume-slider" class="slider"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" id="lowpass-toggle">
+                                        <label class="form-check-label" for="lowpass-toggle">
+                                            Low Pass Filter <span id="lowpass-value" class="param-value">Disabled</span>
+                                        </label>
+                                    </div>
+                                    <div id="lowpass-slider" class="slider mt-3 mb-4" style="display: none;"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mt-4">
+                                        <input class="form-check-input" type="checkbox" id="compression-toggle">
+                                        <label class="form-check-label" for="compression-toggle">
+                                            Compression <span id="compression-value" class="param-value">Disabled</span>
+                                        </label>
+                                    </div>
+                                    <div id="compression-slider" class="slider mt-3 mb-4" style="display: none;"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button class="btn btn-primary" id="process-btn" disabled>
+                                    <i class="fas fa-magic me-2"></i> Process Audio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result section (initially hidden) -->
+            <div class="card mt-4 animate__animated animate__fadeIn" id="result-card" style="display: none;">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Your Processed Audio</h4>
+                </div>
+                <div class="card-body">
+                    <div class="audio-container">
+                        <div class="waveform-container" id="waveform"></div>
+                        
+                        <div class="audio-controls">
+                            <button id="play-btn" class="play-btn">
+                                <i class="fas fa-play" id="play-icon"></i>
+                            </button>
+                            
+                            <div class="progress-container">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span id="current-time">0:00</span>
+                                    <span id="duration">0:00</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div id="progress-bar" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, #6c5ce7, #0984e3);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <audio id="audio-player" preload="metadata" style="display: none;"></audio>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="#" class="btn btn-primary" id="download-btn">
+                            <i class="fas fa-download me-2"></i> Download Processed Audio
+                        </a>
+                        <button class="btn btn-outline-secondary" id="reset-btn">
+                            <i class="fas fa-redo-alt me-2"></i> Process Another File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/wavesurfer.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // File upload handling
+        const fileInput = document.getElementById('custom-file');
+        const fileNameDisplay = document.getElementById('file-name');
+        const previewBtn = document.getElementById('preview-btn');
+        const processBtn = document.getElementById('process-btn');
+        const dropArea = document.getElementById('drop-area');
+        const resultCard = document.getElementById('result-card');
+        const resetBtn = document.getElementById('reset-btn');
+        const audioPlayer = document.getElementById('audio-player');
+        const downloadBtn = document.getElementById('download-btn');
+        
+        // Parameter sliders
+        const sliders = {
+            bass: { id: 'bass-slider', min: -10, max: 10, start: 0, step: 0.5, format: value => `${value}` },
+            treble: { id: 'treble-slider', min: -10, max: 10, start: 0, step: 0.5, format: value => `${value}` },
+            reverb: { id: 'reverb-slider', min: 0, max: 100, start: 0, step: 5, format: value => `${value}` },
+            tempo: { id: 'tempo-slider', min: 50, max: 200, start: 100, step: 5, format: value => `${value}` },
+            pitch: { id: 'pitch-slider', min: -12, max: 12, start: 0, step: 1, format: value => `${value}` },
+            volume: { id: 'volume-slider', min: 10, max: 200, start: 100, step: 5, format: value => `${value}` },
+            lowpass: { id: 'lowpass-slider', min: 200, max: 20000, start: 2000, step: 100, format: value => `${value} Hz` },
+            compression: { id: 'compression-slider', min: 1, max: 10, start: 3, step: 0.5, format: value => `${value}:1` }
+        };
+        
+        // Initialize sliders
+        const sliderInstances = {};
+        for (const [key, config] of Object.entries(sliders)) {
+            const slider = document.getElementById(config.id);
+            const valueDisplay = document.getElementById(`${key}-value`);
+            
+            noUiSlider.create(slider, {
+                start: [config.start],
+                connect: [true, false],
+                step: config.step,
+                range: {
+                    'min': config.min,
+                    'max': config.max
+                }
+            });
+            
+            slider.noUiSlider.on('update', function(values, handle) {
+                const value = parseFloat(values[handle]);
+                valueDisplay.textContent = config.format(value);
+            });
+            
+            sliderInstances[key] = slider;
+        }
+        
+        // Toggle controls for lowpass and compression
+        const lowpassToggle = document.getElementById('lowpass-toggle');
+        const compressionToggle = document.getElementById('compression-toggle');
+        
+        lowpassToggle.addEventListener('change', function() {
+            const slider = document.getElementById('lowpass-slider');
+            const valueDisplay = document.getElementById('lowpass-value');
+            
+            if (this.checked) {
+                slider.style.display = 'block';
+                valueDisplay.textContent = sliders.lowpass.format(sliderInstances.lowpass.noUiSlider.get());
+            } else {
+                slider.style.display = 'none';
+                valueDisplay.textContent = 'Disabled';
+            }
+        });
+        
+        compressionToggle.addEventListener('change', function() {
+            const slider = document.getElementById('compression-slider');
+            const valueDisplay = document.getElementById('compression-value');
+            
+            if (this.checked) {
+                slider.style.display = 'block';
+                valueDisplay.textContent = sliders.compression.format(sliderInstances.compression.noUiSlider.get());
+            } else {
+                slider.style.display = 'none';
+                valueDisplay.textContent = 'Disabled';
+            }
+        });
+        
+        // File upload functions
+        function updateFileName() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                fileNameDisplay.textContent = fileName;
+                previewBtn.disabled = false;
+                processBtn.disabled = false;
+            } else {
+                fileNameDisplay.textContent = '';
+                previewBtn.disabled = true;
+                processBtn.disabled = true;
+            }
+        }
+        
+        fileInput.addEventListener('change', updateFileName);
+        
+        // Drag and drop handling
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('border-primary');
+            dropArea.style.backgroundColor = 'rgba(108, 92, 231, 0.05)';
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('border-primary');
+            dropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.02)';
+        }
+        
+        dropArea.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            fileInput.files = dt.files;
+            updateFileName();
+        }, false);
+        
+        // Preset buttons
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const preset = this.getAttribute('data-preset');
+                applyPreset(preset);
+            });
+        });
+        
+        function applyPreset(preset) {
+            // Reset all toggles first
+            lowpassToggle.checked = false;
+            compressionToggle.checked = false;
+            document.getElementById('lowpass-slider').style.display = 'none';
+            document.getElementById('compression-slider').style.display = 'none';
+            document.getElementById('lowpass-value').textContent = 'Disabled';
+            document.getElementById('compression-value').textContent = 'Disabled';
+            
+            switch(preset) {
+                case 'lofi':
+                    sliderInstances.bass.noUiSlider.set(4);
+                    sliderInstances.treble.noUiSlider.set(-2);
+                    sliderInstances.reverb.noUiSlider.set(20);
+                    sliderInstances.tempo.noUiSlider.set(95);
+                    sliderInstances.pitch.noUiSlider.set(-1);
+                    sliderInstances.volume.noUiSlider.set(120);
+                    lowpassToggle.checked = true;
+                    sliderInstances.lowpass.noUiSlider.set(2000);
+                    document.getElementById('lowpass-slider').style.display = 'block';
+                    document.getElementById('lowpass-value').textContent = '2000 Hz';
+                    compressionToggle.checked = true;
+                    sliderInstances.compression.noUiSlider.set(3);
+                    document.getElementById('compression-slider').style.display = 'block';
+                    document.getElementById('compression-value').textContent = '3:1';
+                    break;
+                case 'jazz':
+                    sliderInstances.bass.noUiSlider.set(2);
+                    sliderInstances.treble.noUiSlider.set(0);
+                    sliderInstances.reverb.noUiSlider.set(40);
+                    sliderInstances.tempo.noUiSlider.set(100);
+                    sliderInstances.pitch.noUiSlider.set(0);
+                    sliderInstances.volume.noUiSlider.set(110);
+                    compressionToggle.checked = true;
+                    sliderInstances.compression.noUiSlider.set(2);
+                    document.getElementById('compression-slider').style.display = 'block';
+                    document.getElementById('compression-value').textContent = '2:1';
+                    break;
+                case 'dubstep':
+                    sliderInstances.bass.noUiSlider.set(8);
+                    sliderInstances.treble.noUiSlider.set(-2);
+                    sliderInstances.reverb.noUiSlider.set(15);
+                    sliderInstances.tempo.noUiSlider.set(100);
+                    sliderInstances.pitch.noUiSlider.set(0);
+                    sliderInstances.volume.noUiSlider.set(150);
+                    compressionToggle.checked = true;
+                    sliderInstances.compression.noUiSlider.set(8);
+                    document.getElementById('compression-slider').style.display = 'block';
+                    document.getElementById('compression-value').textContent = '8:1';
+                    break;
+                case 'vaporwave':
+                    sliderInstances.bass.noUiSlider.set(3);
+                    sliderInstances.treble.noUiSlider.set(-1);
+                    sliderInstances.reverb.noUiSlider.set(80);
+                    sliderInstances.tempo.noUiSlider.set(80);
+                    sliderInstances.pitch.noUiSlider.set(-2);
+                    sliderInstances.volume.noUiSlider.set(110);
+                    compressionToggle.checked = true;
+                    sliderInstances.compression.noUiSlider.set(2);
+                    document.getElementById('compression-slider').style.display = 'block';
+                    document.getElementById('compression-value').textContent = '2:1';
+                    break;
+                case 'rock':
+                    sliderInstances.bass.noUiSlider.set(3);
+                    sliderInstances.treble.noUiSlider.set(4);
+                    sliderInstances.reverb.noUiSlider.set(20);
+                    sliderInstances.tempo.noUiSlider.set(100);
+                    sliderInstances.pitch.noUiSlider.set(0);
+                    sliderInstances.volume.noUiSlider.set(130);
+                    compressionToggle.checked = true;
+                    sliderInstances.compression.noUiSlider.set(5);
+                    document.getElementById('compression-slider').style.display = 'block';
+                    document.getElementById('compression-value').textContent = '5:1';
+                    break;
+                case 'reset':
+                default:
+                    sliderInstances.bass.noUiSlider.set(0);
+                    sliderInstances.treble.noUiSlider.set(0);
+                    sliderInstances.reverb.noUiSlider.set(0);
+                    sliderInstances.tempo.noUiSlider.set(100);
+                    sliderInstances.pitch.noUiSlider.set(0);
+                    sliderInstances.volume.noUiSlider.set(100);
+                    break;
+            }
+        }
+        
+        // Process button handling
+        processBtn.addEventListener('click', function() {
+            if (!fileInput.files.length) return;
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            // Collect parameter values
+            const params = {
+                bass: parseFloat(sliderInstances.bass.noUiSlider.get()),
+                treble: parseFloat(sliderInstances.treble.noUiSlider.get()),
+                reverb: parseFloat(sliderInstances.reverb.noUiSlider.get()) / 100,
+                tempo: parseFloat(sliderInstances.tempo.noUiSlider.get()) / 100,
+                pitch: parseFloat(sliderInstances.pitch.noUiSlider.get()),
+                volume: parseFloat(sliderInstances.volume.noUiSlider.get()) / 100
+            };
+            
+            if (lowpassToggle.checked) {
+                params.lowpass = parseInt(sliderInstances.lowpass.noUiSlider.get());
+            }
+            
+            if (compressionToggle.checked) {
+                params.compression = parseFloat(sliderInstances.compression.noUiSlider.get());
+            }
+            
+            formData.append('params', JSON.stringify(params));
+            
+            // Show loading state
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+            
+            // Send request to server
+            fetch('/custom_effect', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show result section
+                    resultCard.style.display = 'block';
+                    
+                    // Set up audio player
+                    audioPlayer.src = data.url;
+                    downloadBtn.href = data.url;
+                    downloadBtn.download = data.filename;
+                    
+                    // Initialize waveform visualization
+                    initAudioPlayer();
+                    
+                    // Scroll to result section
+                    resultCard.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error occurred'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing audio. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-magic me-2"></i> Process Audio';
+            });
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', function() {
+            resultCard.style.display = 'none';
+            fileInput.value = '';
+            fileNameDisplay.textContent = '';
+            previewBtn.disabled = true;
+            processBtn.disabled = true;
+        });
+        
+        // WaveSurfer initialization
+        let wavesurfer;
+        
+        function initAudioPlayer() {
+            if (wavesurfer) {
+                wavesurfer.destroy();
+            }
+            
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: '#a29bfe',
+                progressColor: '#6c5ce7',
+                cursorColor: 'transparent',
+                barWidth: 2,
+                barRadius: 3,
+                responsive: true,
+                height: 80,
+                barGap: 2,
+            });
+            
+            wavesurfer.load(audioPlayer.src);
+            
+            const playBtn = document.getElementById('play-btn');
+            const playIcon = document.getElementById('play-icon');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeDisplay = document.getElementById('current-time');
+            const durationDisplay = document.getElementById('duration');
+            
+            // Play/pause audio
+            playBtn.addEventListener('click', function() {
+                wavesurfer.playPause();
+            });
+            
+            // Update UI based on wavesurfer state
+            wavesurfer.on('play', function() {
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+            });
+            
+            wavesurfer.on('pause', function() {
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            });
+            
+            wavesurfer.on('ready', function() {
+                durationDisplay.textContent = formatTime(wavesurfer.getDuration());
+            });
+            
+            wavesurfer.on('audioprocess', function() {
+                currentTimeDisplay.textContent = formatTime(wavesurfer.getCurrentTime());
+                const progress = (wavesurfer.getCurrentTime() / wavesurfer.getDuration()) * 100;
+                progressBar.style.width = `${progress}%`;
+            });
+            
+            wavesurfer.on('seek', function() {
+                currentTimeDisplay.textContent = formatTime(wavesurfer.getCurrentTime());
+            });
+            
+            // Format time in mm:ss
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+        }
+    });
+</script>
+{% endblock %}
+</rewritten_file>

@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Audio files in uploads folder
+app/static/uploads/*.mp3
+app/static/uploads/*.wav
+
+# Temporary processing files
+app/static/temp/
+
+# Logs
+logs/
+*.log
+
+# Local configuration file
+.env
+.flaskenv
+
+# OS specific files
+.DS_Store
+Thumbs.db 

@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold animate__animated animate__fadeIn">Transform Your Music</h1>
+                <p class="lead text-muted animate__animated animate__fadeIn animate__delay-1s">
+                    Use AI-powered audio processing to remix your songs with unique styles
+                </p>
+            </div>
+
+            <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-5 d-none d-md-block">
+                            <div class="h-100 bg-primary p-4 d-flex flex-column justify-content-center text-white" 
+                                 style="background: linear-gradient(135deg, #6c5ce7, #0984e3);">
+                                <h3 class="fw-bold mb-4">How It Works</h3>
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="badge bg-white text-primary rounded-circle p-2 me-3">1</span>
+                                    <p class="mb-0">Upload your audio file (MP3 or WAV)</p>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="badge bg-white text-primary rounded-circle p-2 me-3">2</span>
+                                    <p class="mb-0">Choose your preferred remix style</p>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="badge bg-white text-primary rounded-circle p-2 me-3">3</span>
+                                    <p class="mb-0">Click remix and enjoy your transformed song</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="p-4">
+                                <h3 class="fw-bold mb-4">Upload Your Song</h3>
+                                <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+                                    <label for="file" class="file-upload-container mb-4" id="drop-area">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <h5 class="drag-drop-text">Drop your audio file here</h5>
+                                        <p class="text-muted">or click to browse</p>
+                                        <input type="file" class="form-control" id="file" name="file" accept=".mp3,.wav" required>
+                                        <div id="file-name" class="mt-2 text-primary fw-bold"></div>
+                                    </label>
+
+                                    <h5 class="fw-bold mb-3">Choose a Style Effect:</h5>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input visually-hidden" type="radio" name="effect" id="lofi" value="lofi" checked>
+                                                <label class="form-check-label w-100" for="lofi">
+                                                    <div class="effect-card">
+                                                        <i class="fas fa-headphones-alt"></i>
+                                                        <h5>Lo-Fi</h5>
+                                                        <p class="text-muted small mb-0">Chill, relaxed vibes with vintage warmth</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input visually-hidden" type="radio" name="effect" id="jazz" value="jazz">
+                                                <label class="form-check-label w-100" for="jazz">
+                                                    <div class="effect-card">
+                                                        <i class="fas fa-music"></i>
+                                                        <h5>Jazz</h5>
+                                                        <p class="text-muted small mb-0">Smooth harmonics with club atmosphere</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input visually-hidden" type="radio" name="effect" id="dubstep" value="dubstep">
+                                                <label class="form-check-label w-100" for="dubstep">
+                                                    <div class="effect-card">
+                                                        <i class="fas fa-volume-up"></i>
+                                                        <h5>Dubstep</h5>
+                                                        <p class="text-muted small mb-0">Intense bass with dramatic effects</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button class="btn btn-primary" type="submit" id="remix-btn" disabled>
+                                            <i class="fas fa-magic me-2"></i> Remix My Song
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent remixes section -->
+            <div class="card mt-5 animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-history me-2"></i> Recently Remixed</h4>
+                </div>
+                <div class="card-body">
+                    <div id="history-container">
+                        <!-- This will be populated by JavaScript if there are recent remixes -->
+                        <p class="text-center text-muted" id="no-history-message">Your remix history will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features section -->
+            <div class="row mt-5 animate__animated animate__fadeInUp animate__delay-3s">
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-bolt text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Fast Processing</h4>
+                            <p class="text-muted">Transform your songs within seconds using our optimized algorithms</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-palette text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Multiple Styles</h4>
+                            <p class="text-muted">Choose from various music styles to completely transform your tracks</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-download text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Instant Download</h4>
+                            <p class="text-muted">Download your remixed songs immediately after processing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // File upload handling
+    const fileInput = document.getElementById('file');
+    const fileNameDisplay = document.getElementById('file-name');
+    const remixBtn = document.getElementById('remix-btn');
+    const dropArea = document.getElementById('drop-area');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+        updateFileName();
+    });
+    
+    // Drag and drop handling
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('border-primary');
+        dropArea.style.backgroundColor = 'rgba(108, 92, 231, 0.05)';
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('border-primary');
+        dropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.02)';
+    }
+    
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        updateFileName();
+    }
+    
+    function updateFileName() {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = fileName;
+            remixBtn.disabled = false;
+            
+            // Add animation to the file name
+            fileNameDisplay.classList.add('animate__animated', 'animate__fadeIn');
+            setTimeout(() => {
+                fileNameDisplay.classList.remove('animate__animated', 'animate__fadeIn');
+            }, 1000);
+        } else {
+            fileNameDisplay.textContent = '';
+            remixBtn.disabled = true;
+        }
+    }
+    
+    // Recent remixes history from localStorage
+    const historyContainer = document.getElementById('history-container');
+    const noHistoryMessage = document.getElementById('no-history-message');
+    
+    function loadRecentRemixes() {
+        let recentRemixes = JSON.parse(localStorage.getItem('recentRemixes')) || [];
+        
+        if (recentRemixes.length > 0) {
+            noHistoryMessage.style.display = 'none';
+            historyContainer.innerHTML = '';
+            
+            recentRemixes.slice(0, 5).forEach(remix => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                let effectIcon = 'headphones-alt';
+                if (remix.effect === 'jazz') effectIcon = 'music';
+                if (remix.effect === 'dubstep') effectIcon = 'volume-up';
+                
+                historyItem.innerHTML = `
+                    <div class="history-icon">
+                        <i class="fas fa-${effectIcon}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${remix.originalName}</strong>
+                                <div class="text-muted small">${remix.date}</div>
+                            </div>
+                            <span class="effect-badge">${remix.effect}</span>
+                        </div>
+                    </div>
+                `;
+                
+                historyContainer.appendChild(historyItem);
+            });
+        }
+    }
+    
+    // Load history on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecentRemixes();
+    });
+</script>
+{% endblock %} 

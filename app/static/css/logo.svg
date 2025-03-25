@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6157D0"/>
+      <stop offset="100%" stop-color="#7F73E1"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="58" fill="white" stroke="url(#logoGradient)" stroke-width="2"/>
+  
+  <!-- Musical quarter note - simple and recognizable -->
+  <g transform="translate(32, 20)">
+    <!-- Note tail -->
+    <path d="M47 10 Q55 5 55 15" stroke="url(#logoGradient)" stroke-width="8" fill="none" stroke-linecap="round"/>
+    
+    <!-- Stem -->
+    <rect x="39" y="7" width="8" height="65" rx="2" fill="url(#logoGradient)"/>
+    
+    <!-- Note head -->
+    <ellipse cx="30" cy="70" rx="18" ry="14" fill="url(#logoGradient)" transform="rotate(-25 30 70)"/>
+  </g>
+</svg> 

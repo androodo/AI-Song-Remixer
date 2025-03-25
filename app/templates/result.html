@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5 animate__animated animate__fadeIn">
+                <h1 class="display-4 fw-bold">Your Remix is Ready!</h1>
+                <p class="lead text-muted">Listen to your AI-remixed song and download it below</p>
+            </div>
+
+            <div class="card shadow-sm animate__animated animate__fadeInUp">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-4 text-center">
+                        <i class="fas fa-headphones-alt me-2"></i> 
+                        {% if "lofi" in audio_file %}Lo-Fi Remix
+                        {% elif "jazz" in audio_file %}Jazz Remix
+                        {% elif "dubstep" in audio_file %}Dubstep Remix
+                        {% else %}Remixed Track
+                        {% endif %}
+                    </h3>
+                    
+                    <div class="audio-container">
+                        <div class="waveform-container" id="waveform"></div>
+                        
+                        <div class="audio-controls">
+                            <button id="play-btn" class="play-btn">
+                                <i class="fas fa-play" id="play-icon"></i>
+                            </button>
+                            
+                            <div class="progress-container">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span id="current-time">0:00</span>
+                                    <span id="duration">0:00</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div id="progress-bar" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, #6c5ce7, #0984e3);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden native audio element -->
+                        <audio id="audio-player" src="{{ url_for('static', filename='uploads/' + audio_file) }}" preload="metadata" style="display: none;"></audio>
+                    </div>
+                    
+                    {% if is_simulated %}
+                    <div class="note animate__animated animate__fadeIn animate__delay-1s">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong>Note:</strong> This is a simulated remix. For full audio processing capabilities, please install FFmpeg on your system.
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="effects-info animate__animated animate__fadeIn animate__delay-1s">
+                        <h5 class="fw-bold">
+                            <i class="fas fa-magic me-2"></i> 
+                            Applied Effects
+                        </h5>
+                        
+                        {% if "lofi" in audio_file %}
+                        <div class="d-flex flex-wrap mb-2">
+                            <span class="effect-badge">Vintage Feel</span>
+                            <span class="effect-badge">Warm Filter</span>
+                            <span class="effect-badge">Lo-Fidelity</span>
+                            <span class="effect-badge">Vinyl Crackle</span>
+                            <span class="effect-badge">Tape Warble</span>
+                        </div>
+                        <p>Your track was processed with an enhanced vintage Lo-Fi feel, including:</p>
+                        <ul>
+                            <li>Reduced sample rate and pitch shift for that authentic retro sound</li>
+                            <li>Strong low-pass filter for extreme warmth</li>
+                            <li>Enhanced vinyl crackle and noise effects</li>
+                            <li>Heavier compression for that classic pumping sound</li>
+                            <li>Subtle vibrato and tremolo effects for tape warble</li>
+                        </ul>
+                        {% elif "jazz" in audio_file %}
+                        <div class="d-flex flex-wrap mb-2">
+                            <span class="effect-badge">Smooth Midrange</span>
+                            <span class="effect-badge">Club Reverb</span>
+                            <span class="effect-badge">Rich Echo</span>
+                            <span class="effect-badge">Harmonic Enhance</span>
+                        </div>
+                        <p>Your track was transformed with a rich jazz-inspired sound, including:</p>
+                        <ul>
+                            <li>Dramatically enhanced mid-frequencies for warmth</li>
+                            <li>Multiple layers of reverb for a live club atmosphere</li>
+                            <li>Sophisticated echo patterns for spatial depth</li>
+                            <li>Rich harmonic enhancements across all frequencies</li>
+                        </ul>
+                        {% elif "dubstep" in audio_file %}
+                        <div class="d-flex flex-wrap mb-2">
+                            <span class="effect-badge">Extreme Bass</span>
+                            <span class="effect-badge">Heavy Wobble</span>
+                            <span class="effect-badge">Dynamic Pump</span>
+                            <span class="effect-badge">Volume Boost</span>
+                        </div>
+                        <p>Your track was drastically transformed with powerful dubstep elements, including:</p>
+                        <ul>
+                            <li>Extreme sub-bass enhancement for that chest-thumping feel</li>
+                            <li>Aggressive rhythmic wobble and tremolo effects</li>
+                            <li>Dynamic compression for dramatic volume pumping</li>
+                            <li>Reduced high frequencies for that dark, underground sound</li>
+                            <li>Volume boost for maximum impact</li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-3 mt-4">
+                        <a href="{{ url_for('download_file', filename=audio_file) }}" class="btn btn-primary" id="download-btn">
+                            <i class="fas fa-download me-2"></i> Download Remixed Song
+                        </a>
+                        
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-secondary w-100" id="share-btn">
+                                    <i class="fas fa-share-alt me-2"></i> Share
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-redo-alt me-2"></i> Remix Another Song
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Try other effects suggestion card -->
+            <div class="card mt-5 animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="fas fa-lightbulb me-2"></i> Try Other Effects</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if "lofi" not in audio_file %}
+                        <div class="col-md-4">
+                            <div class="effect-card h-100">
+                                <i class="fas fa-headphones-alt"></i>
+                                <h5>Lo-Fi</h5>
+                                <p class="text-muted small mb-3">Chill, relaxed vibes with vintage warmth</p>
+                                <form action="/upload" method="post" enctype="multipart/form-data" id="lofi-form" style="display: none;">
+                                    <input type="hidden" name="effect" value="lofi">
+                                </form>
+                                <button class="btn btn-sm btn-primary try-effect" data-effect="lofi">Try This Effect</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if "jazz" not in audio_file %}
+                        <div class="col-md-4">
+                            <div class="effect-card h-100">
+                                <i class="fas fa-music"></i>
+                                <h5>Jazz</h5>
+                                <p class="text-muted small mb-3">Smooth harmonics with club atmosphere</p>
+                                <form action="/upload" method="post" enctype="multipart/form-data" id="jazz-form" style="display: none;">
+                                    <input type="hidden" name="effect" value="jazz">
+                                </form>
+                                <button class="btn btn-sm btn-primary try-effect" data-effect="jazz">Try This Effect</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if "dubstep" not in audio_file %}
+                        <div class="col-md-4">
+                            <div class="effect-card h-100">
+                                <i class="fas fa-volume-up"></i>
+                                <h5>Dubstep</h5>
+                                <p class="text-muted small mb-3">Intense bass with dramatic effects</p>
+                                <form action="/upload" method="post" enctype="multipart/form-data" id="dubstep-form" style="display: none;">
+                                    <input type="hidden" name="effect" value="dubstep">
+                                </form>
+                                <button class="btn btn-sm btn-primary try-effect" data-effect="dubstep">Try This Effect</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/wavesurfer.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize audio player and waveform visualization
+        const audioElement = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+        
+        // Create WaveSurfer instance
+        const wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#a29bfe',
+            progressColor: '#6c5ce7',
+            cursorColor: 'transparent',
+            barWidth: 2,
+            barRadius: 3,
+            responsive: true,
+            height: 80,
+            barGap: 2,
+            url: audioElement.src
+        });
+        
+        // Update progress display
+        function updateProgress() {
+            const currentTime = audioElement.currentTime;
+            const duration = audioElement.duration || 0;
+            const progressPercent = (currentTime / duration) * 100;
+            
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeDisplay.textContent = formatTime(currentTime);
+            
+            if (!isNaN(duration)) {
+                durationDisplay.textContent = formatTime(duration);
+            }
+        }
+        
+        // Format time in mm:ss
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+        
+        // Play/pause audio
+        playBtn.addEventListener('click', function() {
+            if (audioElement.paused) {
+                audioElement.play();
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+            } else {
+                audioElement.pause();
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            }
+        });
+        
+        // Update progress as audio plays
+        audioElement.addEventListener('timeupdate', updateProgress);
+        
+        // When audio ends
+        audioElement.addEventListener('ended', function() {
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
+            progressBar.style.width = '0%';
+            audioElement.currentTime = 0;
+        });
+        
+        // WaveSurfer events
+        wavesurfer.on('ready', function() {
+            // Enable play button once audio is loaded
+            playBtn.disabled = false;
+            
+            // Set initial duration display
+            durationDisplay.textContent = formatTime(wavesurfer.getDuration());
+            
+            // Add click event to wavesurfer for seeking
+            wavesurfer.container.addEventListener('click', function(e) {
+                const clickPosition = e.offsetX / wavesurfer.container.offsetWidth;
+                const seekTime = clickPosition * audioElement.duration;
+                audioElement.currentTime = seekTime;
+                wavesurfer.seekTo(clickPosition);
+            });
+        });
+        
+        wavesurfer.on('seek', function(position) {
+            audioElement.currentTime = position * audioElement.duration;
+        });
+        
+        // Save to recent remixes history
+        function saveToHistory() {
+            const filename = "{{ audio_file }}";
+            const effect = filename.includes('lofi') ? 'Lo-Fi' : 
+                          filename.includes('jazz') ? 'Jazz' : 
+                          filename.includes('dubstep') ? 'Dubstep' : 'Custom';
+                          
+            // Get original filename from the remix filename
+            const parts = filename.split('_');
+            let originalName = 'Audio Track';
+            if (parts.length > 1) {
+                originalName = parts.slice(1, -1).join('_');
+            }
+            
+            const remix = {
+                originalName: originalName,
+                remixedName: filename,
+                effect: effect,
+                date: new Date().toLocaleDateString()
+            };
+            
+            let recentRemixes = JSON.parse(localStorage.getItem('recentRemixes')) || [];
+            
+            // Add to beginning of array and limit to 10 items
+            recentRemixes.unshift(remix);
+            if (recentRemixes.length > 10) {
+                recentRemixes = recentRemixes.slice(0, 10);
+            }
+            
+            localStorage.setItem('recentRemixes', JSON.stringify(recentRemixes));
+        }
+        
+        // Save this remix to history when page loads
+        saveToHistory();
+        
+        // Share button functionality
+        document.getElementById('share-btn').addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Check out my remixed song!',
+                    text: 'I created this remix using AI Song Remixer',
+                    url: window.location.href
+                })
+                .catch(console.error);
+            } else {
+                // Fallback - copy URL to clipboard
+                const tempInput = document.createElement('input');
+                tempInput.value = window.location.href;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                alert('Link copied to clipboard!');
+            }
+        });
+        
+        // Try other effects buttons
+        document.querySelectorAll('.try-effect').forEach(button => {
+            button.addEventListener('click', function() {
+                const effect = this.getAttribute('data-effect');
+                const formId = `${effect}-form`;
+                const form = document.getElementById(formId);
+                
+                // We need to add the current file to the form
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.name = 'file';
+                fileInput.style.display = 'none';
+                
+                // Fetch the current audio file and submit the form
+                fetch("{{ url_for('static', filename='uploads/' + audio_file) }}")
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const file = new File([blob], "{{ audio_file }}", { type: "audio/mpeg" });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        form.appendChild(fileInput);
+                        form.submit();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching the audio file:', error);
+                        alert('Could not process this request. Please try uploading the file again.');
+                    });
+            });
+        });
+    });
+</script>
+{% endblock %} 
