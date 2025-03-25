@@ -1,22 +1,28 @@
 # AI Song Remixer
 
-A web application that applies style effects to your uploaded music files using audio processing techniques.
+AI Song Remixer is a web application that transforms your music with professionally crafted audio effects. Upload your songs and instantly convert them into Lo-Fi, Jazz, Dubstep, Vaporwave, or Rock styles with a single click. The application uses FFmpeg's powerful audio processing capabilities to apply sophisticated filters, equalization, compression, reverb, and other effects that drastically transform the character of your audio.
 
 ## Features
 
-- Upload MP3 or WAV audio files
-- Choose from different style effects:
-  - Lo-Fi: Creates authentic vintage sound with reduced sample rate, pitch shift, strong low-pass filtering, vinyl crackle, vibrato, tremolo, and heavy compression
-  - Jazz: Transforms tracks with dramatically enhanced mid frequencies, multiple layers of reverb, sophisticated echo patterns, and rich harmonic enhancements
-  - Dubstep: Applies extreme bass enhancement, aggressive wobble effects, dynamic compression for pumping, and volume boost for maximum impact
-- Listen to your remixed song in the browser
-- Download the processed song
+- **Multiple Audio Effects**: Choose from Lo-Fi, Jazz, Dubstep, Vaporwave, and Rock presets
+- **Custom Audio Processing**: Fine-tune your sound with adjustable bass, treble, reverb, tempo, pitch, and more
+- **User-Friendly Interface**: Clean, intuitive design with drag-and-drop file upload
+- **Instant Processing**: Transform your songs within seconds
+- **Download Options**: Easily download your remixed tracks
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Technology
+
+Built with Flask and FFmpeg, this application processes audio directly on the server using professional-grade audio filters. The beautiful frontend utilizes Bootstrap, custom CSS animations, and WaveSurfer.js for waveform visualization.
 
 ## Requirements
 
-- Python (any recent version)
-- FFmpeg (for audio processing)
-- Internet connection (for web-based resources)
+- Python 3.6+
+- Flask
+- FFmpeg (required for audio processing)
+- Modern web browser
+
+The application gracefully falls back to a simulation mode if FFmpeg is not available, ensuring users can still experience the interface without the full audio processing capabilities.
 
 ## Quick Start (Windows)
 
