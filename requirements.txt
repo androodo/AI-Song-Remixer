@@ -1,3 +1,9 @@
 flask==2.0.1
 Werkzeug==2.0.1
 requests==2.27.1
+
+# Offline "AI recommend" (free/local embeddings)
+# Note: keep these unpinned to ensure wheels exist for your Python version.
+numpy
+soundfile
+python_speech_features

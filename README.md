@@ -63,7 +63,7 @@ If you prefer to run the application manually:
 2. Open a terminal or command prompt
 3. Install the required packages:
    ```
-   pip install flask==2.0.1 Werkzeug==2.0.1 requests==2.27.1 pydub==0.25.1
+   pip install -r requirements.txt
    ```
 4. Run the application:
    ```
@@ -82,6 +82,47 @@ This application uses audio processing to add style effects to your music:
    - For Jazz: Enhances mid frequencies, adds reverb, boosts bass
    - For Dubstep: Heavy bass enhancement, creates wobble effect
 4. **Result**: User can listen to and download the result
+
+## Offline AI Recommend (Free Embeddings)
+
+This branch adds an **offline “AI Recommend”** feature that suggests a style (and can optionally fill custom slider values) by doing **embedding similarity search** against a local reference library.
+
+- **No paid APIs**
+- **Runs locally/offline**
+- **You control the reference data**
+
+### 1) Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2) Add reference clips
+
+Put short audio examples into `reference_audio/` (MP3/WAV/OGG/M4A/FLAC).
+
+Optionally edit `reference_audio/metadata.json` to attach:
+- `effect`: `lofi | jazz | dubstep | vaporwave | rock`
+- `params`: custom slider params to apply on the `/custom` page
+
+### 3) Build the local embedding index
+
+```bash
+python -m audio_ai.build_index --reference-dir reference_audio --meta reference_audio/metadata.json
+```
+
+This creates `audio_ai/index_data/embeddings.npy` and `audio_ai/index_data/references.json`.
+
+### 4) Use it in the UI
+
+- On the home page, upload a file and click **“AI Recommend Style (Offline)”**
+- On the custom page, upload a file and click **“AI Suggest”** to fill slider defaults (if your metadata provides `params`)
+
+If you don’t build an index, the app still works; it just returns a safe default recommendation with a note.
+
+### Notes
+
+- **MP3 analysis requires FFmpeg** (because the offline embedding extractor may need FFmpeg to decode MP3/M4A). If FFmpeg isn’t installed, upload WAV/OGG for AI Recommend.
 
 ## Troubleshooting
 
