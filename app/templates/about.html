@@ -63,7 +63,7 @@
                     <span class="feature-icon">🎵</span>
                     Song Upload
                 </h5>
-                <p>Upload your MP3 or WAV audio files to our platform. We support files up to 16MB in size.</p>
+                <p>Upload your MP3, WAV, OGG, or M4A audio files to the web app. Each upload is stored with a unique name so every remix is processed separately.</p>
             </div>
             
             <div class="feature">
@@ -71,11 +71,13 @@
                     <span class="feature-icon">🔊</span>
                     Audio Processing
                 </h5>
-                <p>Our application applies real audio effects to transform your music using the pydub library:</p>
+                <p>The application uses FFmpeg-based audio chains to transform your music directly on your machine:</p>
                 <ul>
-                    <li><strong>Lo-Fi</strong>: Creates authentic vintage sound with reduced sample rate, pitch shift, strong low-pass filtering, vinyl crackle, vibrato, tremolo, and heavy compression</li>
-                    <li><strong>Jazz</strong>: Transforms tracks with dramatically enhanced mid frequencies, multiple layers of reverb, sophisticated echo patterns, and rich harmonic enhancements</li>
-                    <li><strong>Dubstep</strong>: Applies extreme bass enhancement, aggressive wobble effects, dynamic compression for pumping, and volume boost for maximum impact</li>
+                    <li><strong>Lo‑Fi</strong>: Warm, vintage-style sound with band‑limited highs, gentle pitch drift, bitcrush, and compression</li>
+                    <li><strong>Jazz</strong>: Mid‑forward tone with smooth reverb, subtle echo layers, and light saturation for a “club” feel</li>
+                    <li><strong>Dubstep</strong>: Heavy low‑end, wobble modulation, and strong compression for an aggressive, modern sound</li>
+                    <li><strong>Vaporwave</strong>: Slight pitch‑down, tempo slowdown, chorus, and echo to create a dreamy, nostalgic texture</li>
+                    <li><strong>Rock</strong>: Presence and midrange boosts, controlled grit, and punchy compression for a more forward mix</li>
                 </ul>
             </div>
             
@@ -84,12 +86,14 @@
                     <span class="feature-icon">⚡</span>
                     Technology
                 </h5>
-                <p>This application uses several technologies to provide a seamless audio processing experience:</p>
+                <p>This application combines a simple web UI with local audio processing:</p>
                 <ul>
-                    <li>Flask web framework for the backend</li>
-                    <li>Pydub for audio processing and effects</li>
-                    <li>FFmpeg for audio file handling (required for full functionality)</li>
-                    <li>Bootstrap for responsive design</li>
+                    <li><strong>Flask</strong> for the backend web server and routes</li>
+                    <li><strong>FFmpeg</strong> for the actual audio processing and effect chains</li>
+                    <li><strong>Bootstrap</strong>, custom CSS, and JavaScript for the responsive UI</li>
+                    <li><strong>WaveSurfer.js</strong> to visualize and control the audio waveform</li>
+                    <li><strong>noUiSlider</strong> for interactive custom effect sliders</li>
+                    <li><strong>Lightweight audio embeddings</strong> (numpy + MFCCs) to power the offline “AI Recommend” feature</li>
                 </ul>
             </div>
             
@@ -99,16 +103,6 @@
                     Download
                 </h5>
                 <p>After processing, you can listen to your transformed song directly in the browser or download it to your device.</p>
-            </div>
-            
-            <div class="mt-4">
-                <h5>Requirements</h5>
-                <p>For the best experience with audio processing:</p>
-                <ul>
-                    <li>Install FFmpeg on your system (see README for instructions)</li>
-                    <li>Use modern browsers like Chrome, Firefox, or Edge</li>
-                    <li>For larger files, allow more processing time</li>
-                </ul>
             </div>
             
             <div class="d-grid gap-2 mt-4">
