@@ -20,6 +20,8 @@
                         {% if "lofi" in audio_file %}Lo-Fi Remix
                         {% elif "jazz" in audio_file %}Jazz Remix
                         {% elif "dubstep" in audio_file %}Dubstep Remix
+                        {% elif "vaporwave" in audio_file %}Vaporwave Remix
+                        {% elif "rock" in audio_file %}Rock Remix
                         {% else %}Remixed Track
                         {% endif %}
                     </h3>
@@ -52,7 +54,7 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-info-circle text-warning me-3" style="font-size: 1.5rem;"></i>
                             <div>
-                                <strong>Note:</strong> This is a simulated remix. For full audio processing capabilities, please install FFmpeg on your system.
+                                <strong>Important:</strong> This is a simulated remix (the file was copied, not transformed). For real remixing, FFmpeg must be installed and working.
                             </div>
                         </div>
                     </div>
@@ -108,6 +110,36 @@
                             <li>Reduced high frequencies for that dark, underground sound</li>
                             <li>Volume boost for maximum impact</li>
                         </ul>
+                        {% elif "vaporwave" in audio_file %}
+                        <div class="d-flex flex-wrap mb-2">
+                            <span class="effect-badge">Slowdown</span>
+                            <span class="effect-badge">Pitch Drift</span>
+                            <span class="effect-badge">Wide Chorus</span>
+                            <span class="effect-badge">Dreamy Echo</span>
+                        </div>
+                        <p>Your track was transformed into a vaporwave-inspired sound, including:</p>
+                        <ul>
+                            <li>Gentle time-stretch for that slowed, nostalgic vibe</li>
+                            <li>Slight pitch-down for warmth without harsh artifacts</li>
+                            <li>Wide chorus to create a hazy, “tape-like” stereo feel</li>
+                            <li>Subtle echo with controlled brightness so it stays listenable</li>
+                        </ul>
+                        {% elif "rock" in audio_file %}
+                        <div class="d-flex flex-wrap mb-2">
+                            <span class="effect-badge">Punch</span>
+                            <span class="effect-badge">Presence</span>
+                            <span class="effect-badge">Compression</span>
+                            <span class="effect-badge">Grit</span>
+                        </div>
+                        <p>Your track was processed with a rock-inspired tone, including:</p>
+                        <ul>
+                            <li>Presence and midrange boosts for a more forward mix</li>
+                            <li>Stronger compression for punch and density</li>
+                            <li>Subtle grit for edge without turning into harsh distortion</li>
+                            <li>Output limiting to keep levels controlled</li>
+                        </ul>
+                        {% else %}
+                        <p>Effects were applied to your track.</p>
                         {% endif %}
                     </div>
                     {% endif %}

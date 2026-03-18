@@ -72,6 +72,9 @@
                                 <button class="btn btn-sm btn-outline-primary me-2" id="preview-btn" disabled>
                                     <i class="fas fa-play me-1"></i> Preview
                                 </button>
+                                <button class="btn btn-sm btn-outline-primary" id="ai-suggest-btn" disabled>
+                                    <i class="fas fa-wand-magic-sparkles me-1"></i> AI Suggest
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -195,6 +198,7 @@
         const fileNameDisplay = document.getElementById('file-name');
         const previewBtn = document.getElementById('preview-btn');
         const processBtn = document.getElementById('process-btn');
+        const aiSuggestBtn = document.getElementById('ai-suggest-btn');
         const dropArea = document.getElementById('drop-area');
         const resultCard = document.getElementById('result-card');
         const resetBtn = document.getElementById('reset-btn');
@@ -274,10 +278,12 @@
                 fileNameDisplay.textContent = fileName;
                 previewBtn.disabled = false;
                 processBtn.disabled = false;
+                if (aiSuggestBtn) aiSuggestBtn.disabled = false;
             } else {
                 fileNameDisplay.textContent = '';
                 previewBtn.disabled = true;
                 processBtn.disabled = true;
+                if (aiSuggestBtn) aiSuggestBtn.disabled = true;
             }
         }
         
@@ -486,7 +492,63 @@
             fileNameDisplay.textContent = '';
             previewBtn.disabled = true;
             processBtn.disabled = true;
+            if (aiSuggestBtn) aiSuggestBtn.disabled = true;
         });
+
+        // Offline AI suggestion (fills sliders)
+        if (aiSuggestBtn) {
+            aiSuggestBtn.addEventListener('click', async function() {
+                if (!fileInput.files.length) return;
+
+                aiSuggestBtn.disabled = true;
+                const oldHtml = aiSuggestBtn.innerHTML;
+                aiSuggestBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Analyzing...';
+
+                try {
+                    const fd = new FormData();
+                    fd.append('file', fileInput.files[0]);
+
+                    const res = await fetch('/recommend', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || 'Unknown error');
+
+                    const p = data.params || {};
+
+                    // Only set values that exist; keep user's other values
+                    const setIf = (key, value, transform = v => v) => {
+                        if (value === undefined || value === null) return;
+                        if (!sliderInstances[key]) return;
+                        sliderInstances[key].noUiSlider.set(transform(value));
+                    };
+
+                    setIf('bass', p.bass);
+                    setIf('treble', p.treble);
+                    setIf('reverb', p.reverb, v => v * 100);
+                    setIf('tempo', p.tempo, v => v * 100);
+                    setIf('pitch', p.pitch);
+                    setIf('volume', p.volume, v => v * 100);
+
+                    if (p.lowpass !== undefined) {
+                        lowpassToggle.checked = true;
+                        document.getElementById('lowpass-slider').style.display = 'block';
+                        sliderInstances.lowpass.noUiSlider.set(p.lowpass);
+                        document.getElementById('lowpass-value').textContent = `${p.lowpass} Hz`;
+                    }
+
+                    if (p.compression !== undefined) {
+                        compressionToggle.checked = true;
+                        document.getElementById('compression-slider').style.display = 'block';
+                        sliderInstances.compression.noUiSlider.set(p.compression);
+                        document.getElementById('compression-value').textContent = `${p.compression}:1`;
+                    }
+                } catch (err) {
+                    alert('AI Suggest failed: ' + err.message);
+                } finally {
+                    aiSuggestBtn.disabled = false;
+                    aiSuggestBtn.innerHTML = oldHtml;
+                }
+            });
+        }
         
         // WaveSurfer initialization
         let wavesurfer;
@@ -556,4 +618,3 @@
     });
 </script>
 {% endblock %}
-</rewritten_file>

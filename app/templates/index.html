@@ -86,6 +86,30 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input visually-hidden" type="radio" name="effect" id="vaporwave" value="vaporwave">
+                                                <label class="form-check-label w-100" for="vaporwave">
+                                                    <div class="effect-card">
+                                                        <i class="fas fa-water"></i>
+                                                        <h5>Vaporwave</h5>
+                                                        <p class="text-muted small mb-0">Slowed, dreamy, nostalgic ambience</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input visually-hidden" type="radio" name="effect" id="rock" value="rock">
+                                                <label class="form-check-label w-100" for="rock">
+                                                    <div class="effect-card">
+                                                        <i class="fas fa-guitar"></i>
+                                                        <h5>Rock</h5>
+                                                        <p class="text-muted small mb-0">More punch, grit, and presence</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="d-grid">
@@ -93,6 +117,14 @@
                                             <i class="fas fa-magic me-2"></i> Remix My Song
                                         </button>
                                     </div>
+
+                                    <div class="d-grid mt-3">
+                                        <button class="btn btn-outline-primary" type="button" id="ai-recommend-btn" disabled>
+                                            <i class="fas fa-wand-magic-sparkles me-2"></i> AI Recommend Style (Offline)
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-3" id="ai-recommend-status" style="display:none;"></div>
                                 </form>
                             </div>
                         </div>
@@ -209,6 +241,8 @@
             const fileName = fileInput.files[0].name;
             fileNameDisplay.textContent = fileName;
             remixBtn.disabled = false;
+            const aiBtn = document.getElementById('ai-recommend-btn');
+            if (aiBtn) aiBtn.disabled = false;
             
             // Add animation to the file name
             fileNameDisplay.classList.add('animate__animated', 'animate__fadeIn');
@@ -218,7 +252,53 @@
         } else {
             fileNameDisplay.textContent = '';
             remixBtn.disabled = true;
+            const aiBtn = document.getElementById('ai-recommend-btn');
+            if (aiBtn) aiBtn.disabled = true;
         }
+    }
+
+    // Offline AI recommendation
+    const aiBtn = document.getElementById('ai-recommend-btn');
+    const statusEl = document.getElementById('ai-recommend-status');
+    function showStatus(html, kind = 'info') {
+        if (!statusEl) return;
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = `<div class="alert alert-${kind} py-2 mb-0" role="alert">${html}</div>`;
+    }
+
+    if (aiBtn) {
+        aiBtn.addEventListener('click', async function() {
+            if (!fileInput.files.length) return;
+
+            aiBtn.disabled = true;
+            aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing...';
+            showStatus('Analyzing audio locally on the server (offline embeddings)...', 'info');
+
+            try {
+                const fd = new FormData();
+                fd.append('file', fileInput.files[0]);
+
+                const res = await fetch('/recommend', { method: 'POST', body: fd });
+                const data = await res.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+                const eff = data.effect || 'lofi';
+                const radio = document.querySelector(`input[name="effect"][value="${eff}"]`);
+                if (radio) radio.checked = true;
+
+                const conf = typeof data.confidence === 'number' ? data.confidence.toFixed(3) : '0.000';
+                const note = data.note ? `<div class="small text-muted mt-1">${data.note}</div>` : '';
+                showStatus(`<strong>Recommended:</strong> ${eff} <span class="small text-muted">(confidence ${conf})</span>${note}`, 'success');
+            } catch (err) {
+                showStatus(`<strong>AI Recommend failed:</strong> ${err.message}`, 'warning');
+            } finally {
+                aiBtn.disabled = false;
+                aiBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-2"></i> AI Recommend Style (Offline)';
+            }
+        });
     }
     
     // Recent remixes history from localStorage
