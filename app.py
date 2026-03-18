@@ -224,6 +224,38 @@ def recommend_effect():
     rec = recommend_from_index(query, idx, k=5)
     return jsonify({'success': True, **rec})
 
+
+@app.route('/chat_suggestions', methods=['POST'])
+def chat_suggestions():
+    """
+    LangChain-powered helper that explains the current settings and suggests tweaks.
+
+    This expects an LLM API key (e.g. OPENAI_API_KEY) to be configured in the environment.
+    """
+    try:
+        data = request.get_json(force=True, silent=False) or {}
+    except Exception:
+        return jsonify({'success': False, 'error': 'Invalid JSON payload'}), 400
+
+    question = str(data.get('question') or '').strip()
+    effect = str(data.get('effect') or 'lofi')
+    params = data.get('params') or {}
+
+    if not question:
+        question = "Help me pick better settings for this song."
+
+    try:
+        from lang_assistant import suggest_parameters
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'LangChain not available: {e}'}), 500
+
+    try:
+        answer = suggest_parameters(question=question, effect=effect, params=params)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    return jsonify({'success': True, 'answer': answer})
+
 def is_ffmpeg_installed():
     """Check if FFmpeg is installed and available in PATH"""
     try:

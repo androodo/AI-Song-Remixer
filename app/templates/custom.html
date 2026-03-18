@@ -142,6 +142,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- LangChain assistant panel -->
+                    <div class="card mt-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-comments me-2"></i> Mixing Helper (LangChain)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <label for="ai-question" class="form-label small text-muted">
+                                    Describe what you want (e.g. “vocals clearer, less harsh, keep it dreamy”)
+                                </label>
+                                <textarea id="ai-question" class="form-control" rows="2" placeholder="Ask for help with this song..."></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <button class="btn btn-sm btn-outline-secondary" id="ai-chat-btn" disabled>
+                                    <i class="fas fa-robot me-1"></i> Ask AI
+                                </button>
+                                <small id="ai-chat-status" class="text-muted"></small>
+                            </div>
+                            <div id="ai-chat-answer" class="small text-muted" style="white-space: pre-wrap;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -199,6 +221,10 @@
         const previewBtn = document.getElementById('preview-btn');
         const processBtn = document.getElementById('process-btn');
         const aiSuggestBtn = document.getElementById('ai-suggest-btn');
+        const aiChatBtn = document.getElementById('ai-chat-btn');
+        const aiChatStatus = document.getElementById('ai-chat-status');
+        const aiChatAnswer = document.getElementById('ai-chat-answer');
+        const aiQuestion = document.getElementById('ai-question');
         const dropArea = document.getElementById('drop-area');
         const resultCard = document.getElementById('result-card');
         const resetBtn = document.getElementById('reset-btn');
@@ -279,11 +305,13 @@
                 previewBtn.disabled = false;
                 processBtn.disabled = false;
                 if (aiSuggestBtn) aiSuggestBtn.disabled = false;
+                if (aiChatBtn) aiChatBtn.disabled = false;
             } else {
                 fileNameDisplay.textContent = '';
                 previewBtn.disabled = true;
                 processBtn.disabled = true;
                 if (aiSuggestBtn) aiSuggestBtn.disabled = true;
+                if (aiChatBtn) aiChatBtn.disabled = true;
             }
         }
         
@@ -493,6 +521,7 @@
             previewBtn.disabled = true;
             processBtn.disabled = true;
             if (aiSuggestBtn) aiSuggestBtn.disabled = true;
+            if (aiChatBtn) aiChatBtn.disabled = true;
         });
 
         // Offline AI suggestion (fills sliders)
@@ -546,6 +575,55 @@
                 } finally {
                     aiSuggestBtn.disabled = false;
                     aiSuggestBtn.innerHTML = oldHtml;
+                }
+            });
+        }
+
+        // LangChain chat helper (explanation + suggested tweaks)
+        if (aiChatBtn) {
+            aiChatBtn.addEventListener('click', async function() {
+                if (!fileInput.files.length) {
+                    alert('Upload a file first so the AI knows what you are working on.');
+                    return;
+                }
+
+                const question = (aiQuestion && aiQuestion.value.trim()) || '';
+                const payload = {
+                    question,
+                    effect: 'custom',
+                    params: {
+                        bass: parseFloat(sliderInstances.bass.noUiSlider.get()),
+                        treble: parseFloat(sliderInstances.treble.noUiSlider.get()),
+                        reverb: parseFloat(sliderInstances.reverb.noUiSlider.get()) / 100,
+                        tempo: parseFloat(sliderInstances.tempo.noUiSlider.get()) / 100,
+                        pitch: parseFloat(sliderInstances.pitch.noUiSlider.get()),
+                        volume: parseFloat(sliderInstances.volume.noUiSlider.get()) / 100,
+                        lowpass: lowpassToggle.checked ? parseInt(sliderInstances.lowpass.noUiSlider.get()) : null,
+                        compression: compressionToggle.checked ? parseFloat(sliderInstances.compression.noUiSlider.get()) : null
+                    }
+                };
+
+                aiChatBtn.disabled = true;
+                aiChatStatus.textContent = 'Thinking...';
+                aiChatAnswer.textContent = '';
+
+                try {
+                    const res = await fetch('/chat_suggestions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!data.success) {
+                        throw new Error(data.error || 'Unknown error');
+                    }
+                    aiChatAnswer.textContent = data.answer || '';
+                } catch (err) {
+                    aiChatAnswer.textContent = '';
+                    alert('AI helper error: ' + err.message);
+                } finally {
+                    aiChatBtn.disabled = false;
+                    aiChatStatus.textContent = '';
                 }
             });
         }

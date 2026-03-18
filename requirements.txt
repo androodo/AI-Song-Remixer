@@ -7,3 +7,7 @@ requests==2.27.1
 numpy
 soundfile
 python_speech_features
+
+# LangChain-powered assistant (requires an LLM API key, e.g. OPENAI_API_KEY)
+langchain
+openai
