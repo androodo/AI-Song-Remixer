@@ -111,9 +111,61 @@ def _mfcc_embedding(audio: np.ndarray, sr: int, cfg: EmbedConfig) -> np.ndarray:
     try:
         from python_speech_features import mfcc  # optional
     except Exception as e:
-        raise RuntimeError(
-            "Missing dependency python_speech_features. Install optional AI deps."
-        ) from e
+        # Fallback path: keep embedding shape compatible with the MFCC path.
+        # MFCC embedding returns: 2 * cfg.n_mfcc (mean+std) + 2 (rms+zcr) => 42 when n_mfcc=20.
+        #
+        # We approximate "cepstral stats" using FFT magnitude bands, avoiding optional deps.
+        n_fft = 1024
+        win_len = int(sr * 0.025)
+        hop_len = int(sr * 0.010)
+        preemph = 0.97
+
+        if audio.shape[0] < win_len:
+            raise ValueError("Audio too short for embedding window")
+
+        # Pre-emphasis helps reduce spectral tilt (closer to MFCC preprocessing)
+        audio_pe = np.empty_like(audio, dtype=np.float32)
+        audio_pe[0] = audio[0]
+        audio_pe[1:] = audio[1:] - preemph * audio[:-1]
+
+        # Frame the signal
+        n_frames = 1 + (audio_pe.shape[0] - win_len) // hop_len
+        frames = np.lib.stride_tricks.as_strided(
+            audio_pe[: n_frames * hop_len + win_len],
+            shape=(n_frames, win_len),
+            strides=(hop_len * audio_pe.strides[0], audio_pe.strides[0]),
+        ).astype(np.float32)
+
+        # Windowing + magnitude spectrum
+        window = np.hanning(win_len).astype(np.float32)
+        frames_win = frames * window[None, :]
+        spec = np.fft.rfft(frames_win, n=n_fft, axis=1)
+        mag = np.log1p(np.abs(spec).astype(np.float32))  # (frames, freq_bins)
+
+        # Collapse linear-frequency bins into cfg.n_mfcc equal bands
+        freq_bins = mag.shape[1]
+        band_edges = np.linspace(0, freq_bins, cfg.n_mfcc + 1).astype(int)
+        feats = np.zeros((n_frames, cfg.n_mfcc), dtype=np.float32)
+        for i in range(cfg.n_mfcc):
+            a = band_edges[i]
+            b = band_edges[i + 1]
+            if b <= a:
+                feats[:, i] = 0.0
+            else:
+                feats[:, i] = mag[:, a:b].mean(axis=1)
+
+        mean = feats.mean(axis=0)
+        std = feats.std(axis=0)
+        emb = np.concatenate([mean, std], axis=0).astype(np.float32)
+
+        # Add a few global stats (loudness-ish + zero-crossing-ish)
+        rms = float(np.sqrt(np.mean(np.square(audio), dtype=np.float64)))
+        zcr = float(np.mean(audio[:-1] * audio[1:] < 0.0))
+        emb = np.concatenate([emb, np.array([rms, zcr], dtype=np.float32)], axis=0)
+
+        # L2-normalize for cosine similarity downstream
+        norm = np.linalg.norm(emb) + 1e-12
+        return (emb / norm).astype(np.float32)
 
     feats = mfcc(
         audio,
