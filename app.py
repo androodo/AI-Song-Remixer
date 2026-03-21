@@ -505,4 +505,10 @@ def inject_now():
     return {'now': datetime.now()}
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    # Bind to public interface for hosting (e.g., AWS EC2 behind a reverse proxy).
+    # Default debug is off for production safety; enable via DEBUG=1.
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", "5000"))
+    debug_flag = os.environ.get("DEBUG", "false").strip().lower()
+    debug = debug_flag in {"1", "true", "yes", "on"}
+    app.run(host=host, port=port, debug=debug)
